@@ -10,6 +10,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,12 +37,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request ->
                         request
                                 // don't force auth on these 2 routes
-                                .requestMatchers("login", "register")
+                                .requestMatchers("api/user/login", "api/user/register")
                                 .permitAll()
                                 .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(http -> Customizer.withDefaults())
                 // filter jwt before filtering username and password
+                // do not apply jwtFilters to login and register routes
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -51,6 +53,9 @@ public class SecurityConfig {
     // perform auth logic
     @Bean
     public AuthenticationProvider authenticationProvider() {
+
+        //  UsernamePasswordAuthenticationFilter intercepts the request and calls this DaoProvider
+        // to authenticate using name and password
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
 
         // no password encoder for now

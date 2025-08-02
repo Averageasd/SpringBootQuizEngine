@@ -2,14 +2,15 @@ package com.example.WebQuizEngine.user.service;
 
 import com.example.WebQuizEngine.user.models.UserEntity;
 import com.example.WebQuizEngine.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.cglib.core.internal.Function;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
@@ -31,21 +32,54 @@ public class JWTService {
     }
 
     public String generateToken(String userName) {
-        UserEntity userEntity = this.userRepository.findByNameQueryNative(userName);
+        UserEntity userEntity = userRepository.findByNameQueryNative(userName);
         Map<String, Object> claims = new HashMap<>();
+        claims.put("id", userEntity.getId());
         return Jwts.builder()
                 .claims()
                 .add(claims)
-                .subject(userEntity.getId().toString())
+                .subject(userName)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() * 60 * 60 * 60))
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
                 .and()
                 .signWith(getKey())
                 .compact();
     }
 
-    private Key getKey() {
+    private SecretKey getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String extractName(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts
+                .parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        final String userName = extractName(token);
+        return userDetails.getUsername().equals(userName) && isTokenExpired(token);
     }
 }
