@@ -1,14 +1,28 @@
 package com.example.WebQuizEngine.domain.quiz.dto;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
 
 public record CreateQuizRequestDTO(
-        @NotBlank(message = "userName should not be blank")
-        @Length(min = 3, max = 30, message = "Name length must be between 3 and 30 characters")
-        String userName,
+        @NotBlank(message = "title cannot be blank")
+        @Column(name = "title", length = 50, nullable = false)
+        @Length(min = 1, max = 30, message = "Title length must be between 1 and 30 characters")
+        String title,
 
-        @NotBlank(message = "userPassword should not be blank")
-        @Length(min = 8, max = 50, message = "Password length must be between 8 and 50 characters")
-        String userPassword
-){}
+        @NotBlank(message = "text cannot be blank")
+        @Column(name = "text", length = 250, nullable = false)
+        @Length(min = 1, max = 250, message = "Text length must be between 1 and 250 characters")
+        String text,
+
+        @NotNull(message = "choices cannot be empty")
+        @Column(name = "choices", length = 4, nullable = false)
+        @Size(min = 2, max = 4, message = "There must be at least 2 choices")
+        String[] choices,
+
+        @Column(name = "answers")
+        Integer[] answers
+) {
+}

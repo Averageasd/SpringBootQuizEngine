@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/quiz")
 public class QuizController {
 
-    @PostMapping(path = "/")
+    @PostMapping(path = "")
     public String helloWorld(@Valid @RequestBody CreateQuizRequestDTO createQuizRequestDTO){
         return "hello";
     }

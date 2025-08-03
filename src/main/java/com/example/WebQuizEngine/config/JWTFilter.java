@@ -48,6 +48,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 throw new JWTFilterEmptyTokenException("empty token");
             }
             token = authHeader.substring(7);
+            token = token.replace("\"","");
             userName = jwtService.extractName(token);
             // valid token but user is not authenticated yet
             if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
