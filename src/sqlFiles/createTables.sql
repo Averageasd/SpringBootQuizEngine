@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS quizUser (
 	CONSTRAINT unique_userName UNIQUE (userName),
 	CONSTRAINT chk_userName CHECK (char_length(userName) >= 3),
 	CONSTRAINT chk_userPassword CHECK (char_length(userPassword) >= 8)
-)
+);
 
 CREATE INDEX IF NOT EXISTS idx_quiz_user_id ON quizUser (id);
 CREATE INDEX IF NOT EXISTS idx_quiz_user_name ON quizUser (username);

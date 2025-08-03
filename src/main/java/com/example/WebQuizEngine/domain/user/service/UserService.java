@@ -1,12 +1,12 @@
-package com.example.WebQuizEngine.user.service;
+package com.example.WebQuizEngine.domain.user.service;
 
-import com.example.WebQuizEngine.user.dto.CreateUserDTO;
-import com.example.WebQuizEngine.user.dto.LoginUserDTO;
-import com.example.WebQuizEngine.user.exception.CredentialsAlreadyExistException;
-import com.example.WebQuizEngine.user.exception.InvalidUserNameOrPasswordException;
-import com.example.WebQuizEngine.user.exception.errorMessage.ErrorMessages;
-import com.example.WebQuizEngine.user.models.UserEntity;
-import com.example.WebQuizEngine.user.repository.UserRepository;
+import com.example.WebQuizEngine.domain.user.dto.CreateUserDTO;
+import com.example.WebQuizEngine.domain.user.dto.LoginUserDTO;
+import com.example.WebQuizEngine.domain.user.exception.CredentialsAlreadyExistException;
+import com.example.WebQuizEngine.domain.user.exception.InvalidUserNameOrPasswordException;
+import com.example.WebQuizEngine.domain.user.exception.errorMessage.ErrorMessages;
+import com.example.WebQuizEngine.domain.user.models.UserEntity;
+import com.example.WebQuizEngine.domain.user.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

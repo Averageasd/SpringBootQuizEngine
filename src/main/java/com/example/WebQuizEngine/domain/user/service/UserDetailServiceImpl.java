@@ -1,10 +1,10 @@
-package com.example.WebQuizEngine.user.service;
+package com.example.WebQuizEngine.domain.user.service;
 
-import com.example.WebQuizEngine.user.exception.InvalidUserNameOrPasswordException;
-import com.example.WebQuizEngine.user.exception.errorMessage.ErrorMessages;
-import com.example.WebQuizEngine.user.models.UserEntity;
-import com.example.WebQuizEngine.user.models.UserPrincipal;
-import com.example.WebQuizEngine.user.repository.UserRepository;
+import com.example.WebQuizEngine.domain.user.exception.InvalidUserNameOrPasswordException;
+import com.example.WebQuizEngine.domain.user.exception.errorMessage.ErrorMessages;
+import com.example.WebQuizEngine.domain.user.models.UserEntity;
+import com.example.WebQuizEngine.domain.user.models.UserPrincipal;
+import com.example.WebQuizEngine.domain.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;

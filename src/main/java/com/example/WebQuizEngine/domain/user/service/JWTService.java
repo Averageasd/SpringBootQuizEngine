@@ -1,7 +1,7 @@
-package com.example.WebQuizEngine.user.service;
+package com.example.WebQuizEngine.domain.user.service;
 
-import com.example.WebQuizEngine.user.models.UserEntity;
-import com.example.WebQuizEngine.user.repository.UserRepository;
+import com.example.WebQuizEngine.domain.user.models.UserEntity;
+import com.example.WebQuizEngine.domain.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

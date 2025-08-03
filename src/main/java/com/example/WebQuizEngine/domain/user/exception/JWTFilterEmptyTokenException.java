@@ -1,4 +1,4 @@
-package com.example.WebQuizEngine.user.exception;
+package com.example.WebQuizEngine.domain.user.exception;
 
 public class JWTFilterEmptyTokenException extends RuntimeException {
 

@@ -1,9 +1,11 @@
-package com.example.WebQuizEngine.user.dto;
+package com.example.WebQuizEngine.domain.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.validation.annotation.Validated;
 
-public record CreateUserDTO(
+@Validated
+public record LoginUserDTO(
         @NotBlank(message = "userName should not be blank")
         @Length(min = 3, max = 30, message = "Name length must be between 3 and 30 characters")
         String userName,

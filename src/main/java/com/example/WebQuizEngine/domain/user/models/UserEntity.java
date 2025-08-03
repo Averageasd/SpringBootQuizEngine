@@ -1,4 +1,4 @@
-package com.example.WebQuizEngine.user.models;
+package com.example.WebQuizEngine.domain.user.models;
 
 import jakarta.persistence.*;
 import org.hibernate.validator.constraints.Length;

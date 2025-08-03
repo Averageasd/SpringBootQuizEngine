@@ -1,6 +1,6 @@
-package com.example.WebQuizEngine.user.repository;
+package com.example.WebQuizEngine.domain.user.repository;
 
-import com.example.WebQuizEngine.user.models.UserEntity;
+import com.example.WebQuizEngine.domain.user.models.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,4 +1,4 @@
-package com.example.WebQuizEngine.user.models;
+package com.example.WebQuizEngine.domain.user.models;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

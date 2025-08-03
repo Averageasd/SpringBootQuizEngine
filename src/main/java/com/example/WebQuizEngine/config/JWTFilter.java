@@ -1,8 +1,8 @@
 package com.example.WebQuizEngine.config;
 
-import com.example.WebQuizEngine.user.exception.JWTFilterEmptyTokenException;
-import com.example.WebQuizEngine.user.service.JWTService;
-import com.example.WebQuizEngine.user.service.UserDetailServiceImpl;
+import com.example.WebQuizEngine.domain.user.exception.JWTFilterEmptyTokenException;
+import com.example.WebQuizEngine.domain.user.service.JWTService;
+import com.example.WebQuizEngine.domain.user.service.UserDetailServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

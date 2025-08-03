@@ -1,15 +1,24 @@
 package com.example.WebQuizEngine.exceptionHandler;
 
-import com.example.WebQuizEngine.user.exception.CredentialsAlreadyExistException;
-import com.example.WebQuizEngine.user.exception.InvalidUserNameOrPasswordException;
-import com.example.WebQuizEngine.user.exception.JWTFilterEmptyTokenException;
+import com.example.WebQuizEngine.domain.user.exception.CredentialsAlreadyExistException;
+import com.example.WebQuizEngine.domain.user.exception.InvalidUserNameOrPasswordException;
+import com.example.WebQuizEngine.domain.user.exception.JWTFilterEmptyTokenException;
+import com.example.WebQuizEngine.util.ErrorMessageGeneratorUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private final ErrorMessageGeneratorUtil errorMessageGeneratorUtil;
+
+    public GlobalExceptionHandler(ErrorMessageGeneratorUtil errorMessageGeneratorUtil) {
+        this.errorMessageGeneratorUtil = errorMessageGeneratorUtil;
+    }
+
     @ExceptionHandler({InvalidUserNameOrPasswordException.class})
     public ResponseEntity<Object> handleInvalidUserNameOrPasswordException(InvalidUserNameOrPasswordException exception) {
         return ResponseEntity
@@ -29,6 +38,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        errorMessageGeneratorUtil
+                                .getBindingErrorMessages(e.getBindingResult()));
     }
 
     @ExceptionHandler({Exception.class})
