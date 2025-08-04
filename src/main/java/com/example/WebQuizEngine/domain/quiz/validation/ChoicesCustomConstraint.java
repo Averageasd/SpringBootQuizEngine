@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 @Documented
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = ChoicesCustomCustomValidator.class)
+@Constraint(validatedBy = ChoicesCustomValidator.class)
 public @interface ChoicesCustomConstraint {
     String message() default "";
     Class<?>[] groups() default {};

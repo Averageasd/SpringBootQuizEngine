@@ -3,7 +3,7 @@ package com.example.WebQuizEngine.domain.quiz.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class ChoicesCustomCustomValidator implements ConstraintValidator<ChoicesCustomConstraint, String[]> {
+public class ChoicesCustomValidator implements ConstraintValidator<ChoicesCustomConstraint, String[]> {
 
     @Override
     public boolean isValid(String[] choices, ConstraintValidatorContext constraintValidatorContext) {
