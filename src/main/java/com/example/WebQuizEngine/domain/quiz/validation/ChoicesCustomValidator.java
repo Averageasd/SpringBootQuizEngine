@@ -9,10 +9,10 @@ public class ChoicesCustomValidator implements ConstraintValidator<ChoicesCustom
     public boolean isValid(String[] choices, ConstraintValidatorContext constraintValidatorContext) {
         boolean isValid = true;
 
+        constraintValidatorContext.disableDefaultConstraintViolation();
         for (String choice : choices) {
             if (choice.isEmpty() || choice.length() > 50) {
                 isValid = false;
-                constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
                         .buildConstraintViolationWithTemplate("One of the choices has incorrect length. Length of choice must be between 1 and 50")
                         .addPropertyNode("choices")
