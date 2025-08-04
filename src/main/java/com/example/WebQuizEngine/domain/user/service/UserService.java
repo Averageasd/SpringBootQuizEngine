@@ -4,6 +4,7 @@ import com.example.WebQuizEngine.domain.user.dto.CreateUserDTO;
 import com.example.WebQuizEngine.domain.user.dto.LoginUserDTO;
 import com.example.WebQuizEngine.domain.user.exception.CredentialsAlreadyExistException;
 import com.example.WebQuizEngine.domain.user.exception.InvalidUserNameOrPasswordException;
+import com.example.WebQuizEngine.domain.user.exception.UserNotExistException;
 import com.example.WebQuizEngine.domain.user.exception.errorMessage.ErrorMessages;
 import com.example.WebQuizEngine.domain.user.models.UserEntity;
 import com.example.WebQuizEngine.domain.user.repository.UserRepository;
@@ -12,6 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -41,6 +44,14 @@ public class UserService {
                 hashedPassword
         );
         userRepository.save(userEntity);
+    }
+
+    public boolean userWithIDExists(UUID userId) {
+        UUID id = userRepository.checkUserExist(userId);
+        if (id == null) {
+            throw new UserNotExistException(ErrorMessages.USER_NOT_EXIST_ERROR_MESSAGE);
+        }
+        return true;
     }
 
     public void verifyUser(LoginUserDTO loginUserDTO) {

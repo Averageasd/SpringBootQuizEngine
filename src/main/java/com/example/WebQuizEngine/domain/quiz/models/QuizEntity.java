@@ -35,14 +35,18 @@ public class QuizEntity {
     @Type(value = CustomIntegerArrayType.class)
     private Integer[] answers;
 
+    @Column(name = "userid")
+    private UUID userId;
+
     public QuizEntity() {
     }
 
-    public QuizEntity(String title, String text, String[] choices, Integer[] answers) {
+    public QuizEntity(String title, String text, String[] choices, Integer[] answers, UUID userId) {
         this.title = title;
         this.text = text;
         this.choices = choices;
         this.answers = answers;
+        this.userId = userId;
     }
 
     public void setTitle(String title) {
@@ -83,5 +87,13 @@ public class QuizEntity {
 
     public String[] getChoices() {
         return choices;
+    }
+
+    public void setUserId(UUID userId){
+        this.userId = userId;
+    }
+
+    public UUID getUserId(){
+        return userId;
     }
 }

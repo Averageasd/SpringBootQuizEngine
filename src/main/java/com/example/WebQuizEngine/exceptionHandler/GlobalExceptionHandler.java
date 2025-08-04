@@ -3,6 +3,7 @@ package com.example.WebQuizEngine.exceptionHandler;
 import com.example.WebQuizEngine.domain.user.exception.CredentialsAlreadyExistException;
 import com.example.WebQuizEngine.domain.user.exception.InvalidUserNameOrPasswordException;
 import com.example.WebQuizEngine.domain.user.exception.JWTFilterEmptyTokenException;
+import com.example.WebQuizEngine.domain.user.exception.UserNotExistException;
 import com.example.WebQuizEngine.util.ErrorMessageGeneratorUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,12 +50,17 @@ public class GlobalExceptionHandler {
                                 .getBindingErrorMessages(e.getBindingResult()));
     }
 
+    @ExceptionHandler({UserNotExistException.class})
+    public ResponseEntity<Object> handleUserNotExistException(UserNotExistException e){
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
+    }
+
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleInternalErrorException(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
-
-
 }

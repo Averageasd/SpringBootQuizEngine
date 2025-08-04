@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(
+    public ResponseEntity<String> login(
             @Valid @RequestBody LoginUserDTO loginUserDTO) {
         userService.verifyUser(loginUserDTO);
         return ResponseEntity.status(HttpStatus.OK)
@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Object> register(
+    public ResponseEntity<Void> register(
             @Valid @RequestBody CreateUserDTO createUserDTO
     ) {
         userService.register(createUserDTO);

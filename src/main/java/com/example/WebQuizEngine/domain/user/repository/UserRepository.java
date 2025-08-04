@@ -13,4 +13,8 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 
     @Query(value = "SELECT qu.id, qu.username,qu.userpassword, qu.userpasswordhash FROM quizuser qu WHERE qu.userName = :userName", nativeQuery = true)
     UserEntity findByNameQueryNative(@Param("userName") String userName);
+
+
+    @Query(value = "SELECT qu.id FROM quizuser qu WHERE qu.id = :userId", nativeQuery = true)
+    UUID checkUserExist(@Param("userId") UUID id);
 }
