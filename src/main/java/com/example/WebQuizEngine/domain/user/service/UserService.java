@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -32,6 +33,7 @@ public class UserService {
         this.authenticationManager = authenticationManager;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void register(CreateUserDTO createUserDTO) {
         UserEntity userEntity = userRepository.findByNameQueryNative(createUserDTO.userName());
         if (userEntity != null) {
@@ -54,6 +56,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional(rollbackFor = Exception.class, readOnly = true)
     public void verifyUser(LoginUserDTO loginUserDTO) {
         Authentication authentication =
                 authenticationManager.authenticate(

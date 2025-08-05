@@ -1,31 +1,48 @@
 package com.example.WebQuizEngine.domain.quiz.service;
 
-import com.example.WebQuizEngine.domain.quiz.dto.CreateQuizRequestDTO;
-import com.example.WebQuizEngine.domain.quiz.dto.QuizAnswerResultDTO;
-import com.example.WebQuizEngine.domain.quiz.dto.QuizAnswerSubmitDTO;
-import com.example.WebQuizEngine.domain.quiz.dto.QuizResponseDTO;
+import com.example.WebQuizEngine.domain.quiz.dto.*;
 import com.example.WebQuizEngine.domain.quiz.exception.QuizItemNotExistException;
 import com.example.WebQuizEngine.domain.quiz.exception.errorMessage.ErrorMessages;
+import com.example.WebQuizEngine.domain.quiz.models.CompletedQuizHistoryEntity;
 import com.example.WebQuizEngine.domain.quiz.models.QuizEntity;
+import com.example.WebQuizEngine.domain.quiz.repository.QuizHistoryRepository;
 import com.example.WebQuizEngine.domain.quiz.repository.QuizRepository;
-import jakarta.transaction.Transactional;
+import com.example.WebQuizEngine.domain.user.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.UUID;
 
 @Service
 public class QuizService {
 
+    private final UserService userService;
     private final QuizRepository quizRepository;
+    private final QuizHistoryRepository quizHistoryRepository;
 
-    public QuizService(QuizRepository quizRepository) {
+    public QuizService(
+            UserService userService,
+            QuizRepository quizRepository,
+            QuizHistoryRepository quizHistoryRepository
+    ) {
+        this.userService = userService;
         this.quizRepository = quizRepository;
+        this.quizHistoryRepository = quizHistoryRepository;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void createNewQuiz(UUID userId, @Valid CreateQuizRequestDTO createQuizRequestDTO) {
+        userService.userWithIDExists(userId);
         QuizEntity quizEntity = new QuizEntity(
                 createQuizRequestDTO.title(),
                 createQuizRequestDTO.text(),
@@ -36,7 +53,9 @@ public class QuizService {
         quizRepository.save(quizEntity);
     }
 
+    @Transactional(rollbackFor = Exception.class,  readOnly = true)
     public QuizResponseDTO getQuiz(UUID userId, UUID quizId) {
+        userService.userWithIDExists(userId);
         QuizEntity quizEntity = quizRepository
                 .findSingleQuizItemWithQuizIdAndUserId(quizId, userId);
         if (quizEntity == null) {
@@ -51,7 +70,13 @@ public class QuizService {
         );
     }
 
-    public QuizAnswerResultDTO answerQuiz(UUID userId, UUID quizId, QuizAnswerSubmitDTO quizAnswerSubmitDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public QuizAnswerResultDTO answerQuiz(
+            UUID userId,
+            UUID quizId,
+            QuizAnswerSubmitDTO quizAnswerSubmitDTO) {
+        userService.userWithIDExists(userId);
+
         QuizEntity quizEntity = quizRepository
                 .findSingleQuizItemWithQuizIdAndUserId(quizId, userId);
 
@@ -90,6 +115,58 @@ public class QuizService {
 
         quizAnswerResultDTO.setFeedback(feedback);
         quizAnswerResultDTO.setSuccess(success);
+        if (quizAnswerResultDTO.getSuccess() == true) {
+            CompletedQuizHistoryEntity completedQuizHistoryEntity
+                    = new CompletedQuizHistoryEntity(
+                    userId,
+                    quizId,
+                    Timestamp.from(Instant.now()),
+                    "finish");
+            insertQuizCompleteHistoryRecord(completedQuizHistoryEntity);
+        }
+
         return quizAnswerResultDTO;
     }
+
+    public void insertQuizCompleteHistoryRecord(CompletedQuizHistoryEntity completedQuizHistoryEntity){
+        quizHistoryRepository.save(completedQuizHistoryEntity);
+    }
+
+    @Transactional(rollbackFor = Exception.class, readOnly = true)
+    public Page<QuizResponseDTO> getQuizzes(UUID userId, int page) {
+        userService.userWithIDExists(userId);
+        Pageable quizzesPageable = PageRequest.of(page, 10);
+        Page<QuizEntity> quizEntityPage = quizRepository.findQuizzesQueryNative(userId, quizzesPageable);
+        return quizEntityPage.map((quizEntity) -> new QuizResponseDTO(
+                quizEntity.getId(),
+                quizEntity.getTitle(),
+                quizEntity.getText(),
+                quizEntity.getChoices(),
+                quizEntity.getAnswers()
+        ));
+    }
+
+    @Transactional(rollbackFor = Exception.class, readOnly = true)
+    public Page<CompletedQuizHistoryResponseDTO> getCompletedQuizzes(UUID userId, int page) {
+        userService.userWithIDExists(userId);
+        Sort sortByDateDesc = Sort.by("finishTime").descending();
+        Pageable quizzesPageable = PageRequest.of(page, 10, sortByDateDesc);
+        Page<CompletedQuizHistoryEntity> completedQuizHistoryEntityPage
+                = quizHistoryRepository.findCompletedQuizHistoryQueryNative(userId, quizzesPageable);
+        return completedQuizHistoryEntityPage.map((completedQuizHistoryEntity)
+                -> new CompletedQuizHistoryResponseDTO(
+                completedQuizHistoryEntity.getId(),
+                convertQuizHistoryFinishTimeToLocalDateTime(
+                        completedQuizHistoryEntity.getFinishTime()
+                )
+        ));
+    }
+
+    private LocalDateTime convertQuizHistoryFinishTimeToLocalDateTime(Timestamp timestamp) {
+        return timestamp.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
+
+
 }
