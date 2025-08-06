@@ -1,8 +1,10 @@
 package com.example.WebQuizEngine.domain.quiz.service;
 
 import com.example.WebQuizEngine.domain.quiz.dto.*;
+import com.example.WebQuizEngine.domain.quiz.exception.DeleteQuizForbiddenException;
 import com.example.WebQuizEngine.domain.quiz.exception.QuizItemNotExistException;
 import com.example.WebQuizEngine.domain.quiz.exception.errorMessage.ErrorMessages;
+import com.example.WebQuizEngine.domain.quiz.mapper.QuizMapper;
 import com.example.WebQuizEngine.domain.quiz.models.CompletedQuizHistoryEntity;
 import com.example.WebQuizEngine.domain.quiz.models.QuizEntity;
 import com.example.WebQuizEngine.domain.quiz.repository.QuizHistoryRepository;
@@ -43,17 +45,15 @@ public class QuizService {
     @Transactional(rollbackFor = Exception.class)
     public void createNewQuiz(UUID userId, @Valid CreateQuizRequestDTO createQuizRequestDTO) {
         userService.userWithIDExists(userId);
-        QuizEntity quizEntity = new QuizEntity(
-                createQuizRequestDTO.title(),
-                createQuizRequestDTO.text(),
-                createQuizRequestDTO.choices(),
-                createQuizRequestDTO.answers(),
-                userId
-        );
+        QuizEntity quizEntity = QuizMapper
+                .convertCreateQuizRequestDTOToQuizEntity(
+                        userId,
+                        createQuizRequestDTO
+                );
         quizRepository.save(quizEntity);
     }
 
-    @Transactional(rollbackFor = Exception.class,  readOnly = true)
+    @Transactional(rollbackFor = Exception.class, readOnly = true)
     public QuizResponseDTO getQuiz(UUID userId, UUID quizId) {
         userService.userWithIDExists(userId);
         QuizEntity quizEntity = quizRepository
@@ -61,13 +61,7 @@ public class QuizService {
         if (quizEntity == null) {
             throw new QuizItemNotExistException(ErrorMessages.QUIZ_NOT_EXIST_EXCEPTION);
         }
-        return new QuizResponseDTO(
-                quizEntity.getId(),
-                quizEntity.getTitle(),
-                quizEntity.getText(),
-                quizEntity.getChoices(),
-                quizEntity.getAnswers()
-        );
+        return QuizMapper.convertQuizEntityToQuizResponseDTO(quizEntity);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -128,7 +122,7 @@ public class QuizService {
         return quizAnswerResultDTO;
     }
 
-    public void insertQuizCompleteHistoryRecord(CompletedQuizHistoryEntity completedQuizHistoryEntity){
+    public void insertQuizCompleteHistoryRecord(CompletedQuizHistoryEntity completedQuizHistoryEntity) {
         quizHistoryRepository.save(completedQuizHistoryEntity);
     }
 
@@ -137,13 +131,7 @@ public class QuizService {
         userService.userWithIDExists(userId);
         Pageable quizzesPageable = PageRequest.of(page, 10);
         Page<QuizEntity> quizEntityPage = quizRepository.findQuizzesQueryNative(userId, quizzesPageable);
-        return quizEntityPage.map((quizEntity) -> new QuizResponseDTO(
-                quizEntity.getId(),
-                quizEntity.getTitle(),
-                quizEntity.getText(),
-                quizEntity.getChoices(),
-                quizEntity.getAnswers()
-        ));
+        return quizEntityPage.map(QuizMapper::convertQuizEntityToQuizResponseDTO);
     }
 
     @Transactional(rollbackFor = Exception.class, readOnly = true)
@@ -153,20 +141,21 @@ public class QuizService {
         Pageable quizzesPageable = PageRequest.of(page, 10, sortByDateDesc);
         Page<CompletedQuizHistoryEntity> completedQuizHistoryEntityPage
                 = quizHistoryRepository.findCompletedQuizHistoryQueryNative(userId, quizzesPageable);
-        return completedQuizHistoryEntityPage.map((completedQuizHistoryEntity)
-                -> new CompletedQuizHistoryResponseDTO(
-                completedQuizHistoryEntity.getId(),
-                convertQuizHistoryFinishTimeToLocalDateTime(
-                        completedQuizHistoryEntity.getFinishTime()
-                )
-        ));
+        return completedQuizHistoryEntityPage
+                .map(QuizMapper::convertCompletedQuizHistoryEntityToCompletedQuizHistoryResponseDTO);
     }
 
-    private LocalDateTime convertQuizHistoryFinishTimeToLocalDateTime(Timestamp timestamp) {
-        return timestamp.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteQuiz(UUID userId, UUID quizOwnerId, UUID quizId) {
+        userService.userWithIDExists(quizOwnerId);
+        userService.userWithIDExists(userId);
+        QuizEntity quizEntity = quizRepository.findSingleQuizItemWithQuizId(quizId);
+        if (quizEntity == null) {
+            throw new QuizItemNotExistException(ErrorMessages.QUIZ_NOT_EXIST_EXCEPTION);
+        }
+        if (!(quizEntity.getUserId().equals(userId))) {
+            throw new DeleteQuizForbiddenException(ErrorMessages.FORBID_DELETE_QUIZ_EXCEPTION);
+        }
+        quizRepository.delete(quizEntity);
     }
-
-
 }

@@ -12,13 +12,11 @@ import org.springframework.cglib.core.internal.Function;
 import org.springframework.core.codec.Encoder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class JWTService {
@@ -56,6 +54,11 @@ public class JWTService {
 
     public String extractName(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public UUID extractId(String token) {
+        final Claims claims = extractAllClaims(token);
+        return UUID.fromString(claims.get("id", String.class));
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

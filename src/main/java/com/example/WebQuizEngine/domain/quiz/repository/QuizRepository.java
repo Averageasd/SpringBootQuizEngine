@@ -16,6 +16,10 @@ public interface QuizRepository extends JpaRepository<QuizEntity, UUID> {
     @Query(value = "SELECT * FROM quizitem qz WHERE qz.id = :quizId AND qz.userid = :userId", nativeQuery = true)
     QuizEntity findSingleQuizItemWithQuizIdAndUserId(@Param("quizId") UUID quizId, @Param("userId") UUID userId);
 
+    @Query(value = "SELECT * FROM quizitem qz WHERE qz.id = :quizId", nativeQuery = true)
+    QuizEntity findSingleQuizItemWithQuizId(@Param("quizId") UUID quizId);
+
     @Query(value = "SELECT * FROM quizitem qz WHERE qz.userid = :userId", nativeQuery = true)
     Page<QuizEntity> findQuizzesQueryNative(@Param("userId") UUID userId, Pageable pageable);
+
 }

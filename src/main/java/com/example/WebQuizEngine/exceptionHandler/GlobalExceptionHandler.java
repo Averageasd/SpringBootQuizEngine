@@ -1,5 +1,6 @@
 package com.example.WebQuizEngine.exceptionHandler;
 
+import com.example.WebQuizEngine.domain.quiz.exception.DeleteQuizForbiddenException;
 import com.example.WebQuizEngine.domain.user.exception.CredentialsAlreadyExistException;
 import com.example.WebQuizEngine.domain.user.exception.InvalidUserNameOrPasswordException;
 import com.example.WebQuizEngine.domain.user.exception.JWTFilterEmptyTokenException;
@@ -23,7 +24,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({InvalidUserNameOrPasswordException.class})
     public ResponseEntity<Object> handleInvalidUserNameOrPasswordException(InvalidUserNameOrPasswordException exception) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(exception.getMessage());
     }
 
@@ -54,6 +55,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleUserNotExistException(UserNotExistException e){
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler({DeleteQuizForbiddenException.class})
+    public ResponseEntity<Object> handleDeleteQuizForbiddenException(DeleteQuizForbiddenException e){
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(e.getMessage());
     }
 
