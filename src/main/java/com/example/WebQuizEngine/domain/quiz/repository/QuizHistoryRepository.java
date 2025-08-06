@@ -1,7 +1,6 @@
 package com.example.WebQuizEngine.domain.quiz.repository;
 
 import com.example.WebQuizEngine.domain.quiz.models.CompletedQuizHistoryEntity;
-import com.example.WebQuizEngine.domain.quiz.models.QuizEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
